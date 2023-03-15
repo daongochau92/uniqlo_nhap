@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:uniqlo_nhap/database/database.dart';
@@ -52,15 +51,6 @@ class HomeController extends GetxController {
 
     m = MyDatabase.instance;
     list.value = await m.getListBoxAllBoxNotScann();
-  }
-
-  Future<void> playSoundError() async {
-    try {
-      AudioPlayer player = AudioPlayer();
-      await player.play(AssetSource('audio/beep.mp3'));
-    } catch (e) {
-      scanController.text = e + "err sound ";
-    }
   }
 
   @override

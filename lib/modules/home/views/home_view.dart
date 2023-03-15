@@ -12,7 +12,7 @@ import 'package:uniqlo_nhap/model/scan.dart';
 import '../../../util/util.dart';
 import '../controllers/home_controller.dart';
 
-// ignore: use_key_in_widget_constructors
+// ignore: use_key_in_widget_constructors, must_be_immutable
 class HomeView extends GetView<HomeController> {
   FocusNode focusScan;
   @override
@@ -33,18 +33,6 @@ class HomeView extends GetView<HomeController> {
               )),
         ),
         centerTitle: true,
-        // leading: Obx(
-        //   (() => Center(
-        //         child: Text(
-        //           "${controller.count.value} / ${controller.total.value}",
-        //           style: const TextStyle(
-        //             color: Colors.white,
-        //             fontSize: 25,
-        //           ),
-        //           maxLines: 1,
-        //         ),
-        //       )),
-        // ),
         leadingWidth: 1000,
         actions: [
           PopupMenuButton(
@@ -282,7 +270,7 @@ class HomeView extends GetView<HomeController> {
         break;
 
       default:
-        controller.playSoundError();
+        playSoundError();
     }
     focusScan.requestFocus();
     controller.scanController.selection = TextSelection(
@@ -350,7 +338,7 @@ class HomeView extends GetView<HomeController> {
       database.updateBox(box);
       controller.getList();
     } else {
-      controller.playSoundError();
+      playSoundError();
     }
   }
 
@@ -413,7 +401,7 @@ class HomeView extends GetView<HomeController> {
       database.updateBox(box);
       controller.getList();
     } else {
-      controller.playSoundError();
+      playSoundError();
     }
   }
 
@@ -460,7 +448,7 @@ class HomeView extends GetView<HomeController> {
       database.updateBox(box);
       controller.getList();
     } else {
-      controller.playSoundError();
+      playSoundError();
     }
   }
 
@@ -536,7 +524,7 @@ class HomeView extends GetView<HomeController> {
       database.updateBox(box);
       controller.getList();
     } else {
-      controller.playSoundError();
+      playSoundError();
     }
   }
 
@@ -593,7 +581,7 @@ class HomeView extends GetView<HomeController> {
       database.updateBox(box);
       controller.getList();
     } else {
-      controller.playSoundError();
+      playSoundError();
     }
   }
 

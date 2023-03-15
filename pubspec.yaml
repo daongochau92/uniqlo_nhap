@@ -44,6 +44,8 @@ dependencies:
   crypto: ^3.0.2
   intl: ^0.18.0
   permission_handler: ^10.2.0
+  get_cli: ^1.4.6
+  csv: ^5.0.0
 
 dev_dependencies:
   flutter_test:

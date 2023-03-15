@@ -1,6 +1,11 @@
+// ignore_for_file: avoid_print
+
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +14,8 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uniqlo_nhap/database/database.dart';
 import 'package:uniqlo_nhap/model/box.dart';
+import 'package:uniqlo_nhap/model/loading.dart';
 import 'package:uniqlo_nhap/model/scan.dart';
-import 'package:uniqlo_nhap/modules/home/controllers/home_controller.dart';
 
 Future<Uint8List> getDir() async {
   FilePickerResult result = await FilePicker.platform
@@ -20,6 +25,18 @@ Future<Uint8List> getDir() async {
     var bytes = File(result.files.single.path).readAsBytesSync();
 
     return bytes;
+  } else {
+    // User canceled the picker
+  }
+  return null;
+}
+
+Future<String> getDirCSV() async {
+  FilePickerResult result = await FilePicker.platform
+      .pickFiles(type: FileType.custom, allowedExtensions: ['csv', 'CSV']);
+
+  if (result != null) {
+    return result.paths.first;
   } else {
     // User canceled the picker
   }
@@ -43,6 +60,33 @@ void errorSnackbar(String msg) {
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.red[400],
       colorText: Colors.white);
+}
+
+Future<void> playSoundError() async {
+  try {
+    AudioPlayer player = AudioPlayer();
+    await player.play(AssetSource('audio/beep.mp3'));
+  } catch (e) {
+    print(e.toString());
+  }
+}
+
+void showdialog({String title, String content}) {
+  showDialog(
+    context: Get.context,
+    builder: (context) => AlertDialog(
+      title: Text(title == '' ? 'Error' : title),
+      content: Text(content == '' ? '' : content),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text("Ok"),
+        ),
+      ],
+    ),
+  );
 }
 
 Future<int> readFileExcel(Uint8List uint8list) async {
@@ -82,10 +126,51 @@ Future<int> readFileExcel(Uint8List uint8list) async {
   return listUpload.length;
 }
 
+Future<int> readFileCSVLoading(String dir) async {
+  MyDatabase myDatabase = MyDatabase.instance;
+  await myDatabase.deleteAllLoading();
+  List<Loading> listUpload = [];
+  try {
+    File f = File(dir);
+    final input = f.openRead();
+    final fields = await input
+        .transform(utf8.decoder)
+        .transform(const CsvToListConverter())
+        .toList();
+    for (int row = 1; row < fields.length; row++) {
+      var datarow = fields[row];
+      if (parseStringToInt(datarow[11]) == 0 || datarow[13] == '') {
+        continue;
+      }
+      Loading loading = Loading(
+          storeCode: parseStringToInt(datarow[11]),
+          storeName: datarow[12],
+          deliveryDate: datarow[8],
+          refNo: datarow[13],
+          scanned: 'N');
+      listUpload.add(loading);
+      myDatabase.insertLoading(loading);
+    }
+  } catch (e) {
+    print(e);
+  }
+  return listUpload.length;
+}
+
 int getCellNumberValue(Data data) {
   try {
     int number = 0;
     number = int.parse(data.value.toString().trim());
+    return number;
+  } catch (e) {
+    return 0;
+  }
+}
+
+int parseStringToInt(String data) {
+  try {
+    int number = 0;
+    number = int.parse(data.toString().trim());
     return number;
   } catch (e) {
     return 0;
@@ -124,7 +209,7 @@ Future<void> createCSV() async {
       List<Box> list = await m.getListBoxAllBox();
       for (var b in list) {
         f.writeAsStringSync(
-            '${b.no},${b.itemCD},${b.year},${b.serialNo},${b.color},${b.color},${b.size},${b.patlength},${b.assortCD},${b.shipment},${b.ctn},${b.countCTN},${b.flagNew}',
+            '${b.no},${b.itemCD},${b.year},${b.serialNo},${b.color},${b.size},${b.patlength},${b.assortCD},${b.plu},${b.shipment},${b.ctn},${b.countCTN},${b.flagNew}',
             mode: FileMode.append);
         f.writeAsStringSync('\n', mode: FileMode.append);
       }

@@ -8,9 +8,13 @@ abstract class Routes {
 
   static const HOME = _Paths.HOME;
   static const SCAN = _Paths.SCAN;
+  static const LOADING = _Paths.LOADING;
+  static const MENU = _Paths.MENU;
 }
 
 abstract class _Paths {
   static const HOME = '/home';
   static const SCAN = '/scan';
+  static const LOADING = '/loading';
+  static const MENU = '/menu';
 }
