@@ -128,7 +128,6 @@ Future<int> readFileExcel(Uint8List uint8list) async {
 
 Future<int> readFileCSVLoading(String dir) async {
   MyDatabase myDatabase = MyDatabase.instance;
-  await myDatabase.deleteAllLoading();
   List<Loading> listUpload = [];
   try {
     File f = File(dir);
@@ -145,11 +144,17 @@ Future<int> readFileCSVLoading(String dir) async {
       Loading loading = Loading(
           storeCode: parseStringToInt(datarow[11]),
           storeName: datarow[12],
-          deliveryDate: datarow[8],
+          deliveryDate: datarow[7],
           refNo: datarow[13],
           scanned: 'N');
+
+      Loading load =
+          await myDatabase.getLoading(loading.storeCode, loading.refNo);
+      if (load == null) {
+        myDatabase.insertLoading(loading);
+      }
+
       listUpload.add(loading);
-      myDatabase.insertLoading(loading);
     }
   } catch (e) {
     print(e);

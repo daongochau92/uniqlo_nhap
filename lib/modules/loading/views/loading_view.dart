@@ -43,36 +43,25 @@ class LoadingView extends GetView<LoadingController> {
                   value: 0,
                   child: Text("Upload file"),
                 ),
+                const PopupMenuItem<int>(
+                  value: 1,
+                  child: Text("Clear Data"),
+                ),
               ];
             },
             onSelected: (value) async {
               if (value == 0) {
                 // ignore: avoid_print
-                var dir = await getDirCSV();
-                if (dir != null) {
-                  // ignore: avoid_print
-                  print('ko get duoc file');
-                }
-                int size = await readFileCSVLoading(dir);
-                if (size == 0) {
-                } else {
-                  showdialog(
-                      title: 'Success',
-                      content: 'ALready upload ${size.toString()} row');
-                  // controller.count.value = 0;
-                  // controller.total.value = size;
-                  controller.getList(9999);
-                  controller.no.value = "N/G";
-                  controller.delivery.value = "";
-                  controller.storeName.value = "";
-                  controller.scanController.text = "";
-                  controller.storeController.text = '';
-                  focusStore.requestFocus();
-                  controller.storeController.selection = TextSelection(
-                    baseOffset: 0,
-                    extentOffset: controller.storeController.text.length,
-                  );
-                }
+                await readCsv();
+              } else if (value == 1) {
+                MyDatabase.instance.deleteAllLoading();
+                controller.total.value = 0;
+                controller.count.value = 0;
+                controller.scanController.text = "";
+                controller.storeController.text = "";
+                controller.delivery.value = "";
+                controller.no.value = "";
+                controller.getList(9999);
               }
             },
           ),
@@ -134,7 +123,7 @@ class LoadingView extends GetView<LoadingController> {
                       () => Row(
                         children: [
                           const Text('Delivery Date:'),
-                          Text('${controller.delivery}'),
+                          Text('     ${controller.delivery}'),
                         ],
                       ),
                     ),
@@ -193,6 +182,33 @@ class LoadingView extends GetView<LoadingController> {
         ],
       ),
     );
+  }
+
+  Future<void> readCsv() async {
+    var dir = await getDirCSV();
+    if (dir != null) {
+      // ignore: avoid_print
+      print('ko get duoc file');
+    }
+    int size = await readFileCSVLoading(dir);
+    if (size == 0) {
+    } else {
+      showdialog(
+          title: 'Success', content: 'ALready upload ${size.toString()} row');
+      // controller.count.value = 0;
+      // controller.total.value = size;
+      controller.getList(9999);
+      controller.no.value = "N/G";
+      controller.delivery.value = "";
+      controller.storeName.value = "";
+      controller.scanController.text = "";
+      controller.storeController.text = '';
+      focusStore.requestFocus();
+      controller.storeController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: controller.storeController.text.length,
+      );
+    }
   }
 
   scanStore(String value) async {
