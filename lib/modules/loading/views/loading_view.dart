@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -186,12 +184,28 @@ class LoadingView extends GetView<LoadingController> {
 
   Future<void> readCsv() async {
     var dir = await getDirCSV();
-    if (dir != null) {
+    if (dir == null) {
       // ignore: avoid_print
       print('ko get duoc file');
+      showdialog(title: 'Error', content: 'Please choose the file');
+      return;
     }
     int size = await readFileCSVLoading(dir);
     if (size == 0) {
+      showdialog(title: 'Error', content: 'ALready upload 0 row');
+      // controller.count.value = 0;
+      // controller.total.value = size;
+      controller.getList(9999);
+      controller.no.value = "N/G";
+      controller.delivery.value = "";
+      controller.storeName.value = "";
+      controller.scanController.text = "";
+      controller.storeController.text = '';
+      focusStore.requestFocus();
+      controller.storeController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: controller.storeController.text.length,
+      );
     } else {
       showdialog(
           title: 'Success', content: 'ALready upload ${size.toString()} row');

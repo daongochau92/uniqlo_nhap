@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:sqflite/sqflite.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:uniqlo_nhap/model/box.dart';
 import 'package:uniqlo_nhap/model/ctn.dart';

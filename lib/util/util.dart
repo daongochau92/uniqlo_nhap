@@ -138,14 +138,15 @@ Future<int> readFileCSVLoading(String dir) async {
         .toList();
     for (int row = 1; row < fields.length; row++) {
       var datarow = fields[row];
-      if (parseStringToInt(datarow[11]) == 0 || datarow[13] == '') {
+      if (parseStringToInt(datarow[11].toString()) == 0 ||
+          datarow[13].toString().trim() == '') {
         continue;
       }
       Loading loading = Loading(
-          storeCode: parseStringToInt(datarow[11]),
-          storeName: datarow[12],
-          deliveryDate: datarow[7],
-          refNo: datarow[13],
+          storeCode: parseStringToInt(datarow[11].toString()),
+          storeName: datarow[12].toString().trim(),
+          deliveryDate: datarow[7].toString().trim(),
+          refNo: datarow[13].toString().trim(),
           scanned: 'N');
 
       Loading load =

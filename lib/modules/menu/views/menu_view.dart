@@ -5,6 +5,7 @@ import 'package:uniqlo_nhap/routes/app_pages.dart';
 
 import '../controllers/menu_controller.dart';
 
+// ignore: use_key_in_widget_constructors
 class MenuView extends GetView<MenuController> {
   @override
   Widget build(BuildContext context) {
