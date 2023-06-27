@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uniqlo_nhap/database/database.dart';
 
 import '../../../model/loading.dart';
@@ -23,7 +27,7 @@ class LoadingView extends GetView<LoadingController> {
                   "${controller.count.value}/${controller.total.value}",
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 60,
+                    fontSize: 35,
                   ),
                   maxLines: 1,
                 ),
@@ -45,6 +49,14 @@ class LoadingView extends GetView<LoadingController> {
                   value: 1,
                   child: Text("Clear Data"),
                 ),
+                const PopupMenuItem<int>(
+                  value: 2,
+                  child: Text("Delete store"),
+                ),
+                const PopupMenuItem<int>(
+                  value: 3,
+                  child: Text("Download"),
+                ),
               ];
             },
             onSelected: (value) async {
@@ -59,7 +71,50 @@ class LoadingView extends GetView<LoadingController> {
                 controller.storeController.text = "";
                 controller.delivery.value = "";
                 controller.no.value = "";
+                controller.storeName.value = "";
                 controller.getList(9999);
+              } else if (value == 2) {
+                TextEditingController textcontroller = TextEditingController();
+                showDialog(
+                  context: Get.context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Delete by store code"),
+                    content: TextField(
+                      controller: textcontroller,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          MyDatabase.instance
+                              .deleteLoadingbyStore(textcontroller.text.trim());
+                          controller.total.value = 0;
+                          controller.count.value = 0;
+                          controller.scanController.text = "";
+                          controller.storeController.text = "";
+                          controller.delivery.value = "";
+                          controller.no.value = "";
+                          controller.storeName.value = "";
+                          controller.getList(9999);
+                        },
+                        child: const Text("Ok"),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (value == 3) {
+                createCSV();
+                focusScan.requestFocus();
+                controller.scanController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: controller.scanController.text.length,
+                );
               }
             },
           ),
@@ -182,6 +237,39 @@ class LoadingView extends GetView<LoadingController> {
     );
   }
 
+  Future<void> createCSV() async {
+    String dir = await getDirPath();
+
+    // final homeCOntroller = Get.find<HomeController>();
+    // homeCOntroller.scanController.text = dir;
+    if (dir != null) {
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
+      try {
+        var format = DateFormat('yyyyMMddhhmmss');
+        File f = File("$dir/Loading_${format.format(DateTime.now())}.csv");
+        f.writeAsStringSync(
+            'Store Code, Store Name, Delivery Date, Ref No, Scanned',
+            mode: FileMode.append);
+        f.writeAsStringSync('\n', mode: FileMode.append);
+        MyDatabase m = MyDatabase.instance;
+        List<Loading> list = await m.getListLoadingDownload();
+        for (var b in list) {
+          f.writeAsStringSync(
+              '${b.storeCode},${b.storeName},${b.deliveryDate},${b.refNo},${b.scanned}',
+              mode: FileMode.append);
+          f.writeAsStringSync('\n', mode: FileMode.append);
+        }
+      } catch (e) {
+        // homeCOntroller.scanController.text = '${e.toString()}eror';
+      }
+    } else {
+      // homeCOntroller.scanController.text = '${dir}errr';
+    }
+  }
+
   Future<void> readCsv() async {
     var dir = await getDirCSV();
     if (dir == null) {
@@ -258,7 +346,7 @@ class LoadingView extends GetView<LoadingController> {
   scanRefNo(String value) async {
     controller.no.value = "N/G";
     controller.delivery.value = "";
-    if (value.length < 14) {
+    if (value.length < 3) {
       playSoundError();
       focusScan.requestFocus();
       controller.scanController.selection = TextSelection(
@@ -267,7 +355,7 @@ class LoadingView extends GetView<LoadingController> {
       );
       return;
     }
-    String ref = value.substring(1, 13);
+    String ref = value.substring(1, value.length - 1);
 
     int store = 0;
     try {

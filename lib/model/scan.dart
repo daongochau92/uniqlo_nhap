@@ -4,14 +4,18 @@ class Scan {
   int id;
   String scan;
   String barcode;
+  String pallet;
+  String plu;
 
-  Scan({this.scan, this.barcode});
+  Scan({this.scan, this.barcode, this.pallet, this.plu});
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = <String, dynamic>{
       colId: id,
       colscan: scan,
-      colbarcode: barcode
+      colbarcode: barcode,
+      colpallet: pallet,
+      colplu: plu
     };
     return map;
   }
@@ -20,5 +24,7 @@ class Scan {
     id = map[colId];
     scan = map[colscan];
     barcode = map[colbarcode];
+    pallet = map[colpallet];
+    plu = map[colplu];
   }
 }

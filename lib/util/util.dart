@@ -16,6 +16,7 @@ import 'package:uniqlo_nhap/database/database.dart';
 import 'package:uniqlo_nhap/model/box.dart';
 import 'package:uniqlo_nhap/model/loading.dart';
 import 'package:uniqlo_nhap/model/scan.dart';
+import 'package:uniqlo_nhap/model/sts.dart';
 
 Future<Uint8List> getDir() async {
   FilePickerResult result = await FilePicker.platform
@@ -89,7 +90,7 @@ void showdialog({String title, String content}) {
   );
 }
 
-Future<int> readFileExcel(Uint8List uint8list) async {
+Future<int> readFileExcelArrival(Uint8List uint8list) async {
   Excel excel = Excel.decodeBytes(uint8list);
   Map<String, Sheet> table = excel.tables;
   MyDatabase myDatabase = MyDatabase.instance;
@@ -118,9 +119,83 @@ Future<int> readFileExcel(Uint8List uint8list) async {
       shipment: getCellValue(dataRow[10]),
       countCTN: 0,
       flagNew: 'N',
+      pallet: '',
     );
     listUpload.add(box);
     myDatabase.insertBox(box);
+  }
+
+  return listUpload.length;
+}
+
+Future<int> readFileExcelArrival1(Uint8List uint8list) async {
+  Excel excel = Excel.decodeBytes(uint8list);
+  Map<String, Sheet> table = excel.tables;
+  MyDatabase myDatabase = MyDatabase.instance;
+  await myDatabase.deleteAll1();
+  await myDatabase.deleteAllCtn1();
+  await myDatabase.deleteAllScan1();
+  List<Box> listUpload = [];
+  Sheet sheet = table["Sheet1"];
+  for (int row = 1; row < sheet.maxRows; row++) {
+    List<Data> dataRow = sheet.row(row);
+    if (getCellValue(dataRow[1]) == '' || getCellValue(dataRow[1]) == '0') {
+      continue;
+    }
+
+    Box box = Box(
+      no: getCellValue(dataRow[0]),
+      plu: getCellValue(dataRow[1]),
+      itemCD: getCellValue(dataRow[2]),
+      year: getCellNumberValue(dataRow[3]),
+      serialNo: getCellNumberValue(dataRow[4]),
+      color: getCellNumberValue(dataRow[5]),
+      size: getCellNumberValue(dataRow[6]),
+      patlength: getCellNumberValue(dataRow[7]),
+      assortCD: getCellValue(dataRow[8]),
+      ctn: getCellNumberValue(dataRow[10]),
+      shipment: getCellValue(dataRow[9]),
+      countCTN: 0,
+      flagNew: 'N',
+      pallet: '',
+    );
+    listUpload.add(box);
+    myDatabase.insertBox1(box);
+  }
+
+  return listUpload.length;
+}
+
+Future<int> readFileExcelCheckSTS(Uint8List uint8list) async {
+  Excel excel = Excel.decodeBytes(uint8list);
+  Map<String, Sheet> table = excel.tables;
+  MyDatabase myDatabase = MyDatabase.instance;
+  await myDatabase.deleteAllSts();
+  List<Sts> listUpload = [];
+  Sheet sheet = table["Sheet1"];
+  for (int row = 1; row < sheet.maxRows; row++) {
+    List<Data> dataRow = sheet.row(row);
+    if (getCellValue(dataRow[5]) == '' || getCellValue(dataRow[6]) == '') {
+      continue;
+    }
+
+    String arrDate = '';
+    try {
+      arrDate = getCellValue(dataRow[1]).substring(0, 10);
+    } catch (e) {
+      print(e.toString());
+    }
+
+    Sts sts = Sts(
+      refNo: getCellValue(dataRow[5]),
+      arrivalDate: arrDate,
+      shipfrom: getCellValue(dataRow[6]),
+      shiptocd: getCellValue(dataRow[2]),
+      flagNew: 'N',
+      refTrim: getCellValue(dataRow[5]).replaceAll('-', ''),
+    );
+    listUpload.add(sts);
+    myDatabase.insertCheckSts(sts);
   }
 
   return listUpload.length;
@@ -206,7 +281,7 @@ Future<void> createCSV() async {
     }
     try {
       var format = DateFormat('yyyymmddhhmmss');
-      File f = File("$dir/${format.format(DateTime.now())}.csv");
+      File f = File("$dir/Arrival_${format.format(DateTime.now())}.csv");
       f.writeAsStringSync(
           'No, Item, Year, Serial, Color, Size, PatLength, AssortCD, PLU, Shipment, ctn, count ctn, Scanned',
           mode: FileMode.append);
@@ -227,6 +302,39 @@ Future<void> createCSV() async {
   }
 }
 
+Future<void> createCSV1() async {
+  String dir = await getDirPath();
+
+  // final homeCOntroller = Get.find<HomeController>();
+  // homeCOntroller.scanController.text = dir;
+  if (dir != null) {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+    try {
+      var format = DateFormat('yyyymmddhhmmss');
+      File f = File("$dir/TransferWH_${format.format(DateTime.now())}.csv");
+      f.writeAsStringSync(
+          'No, Item, Year, Serial, Color, Size, PatLength, AssortCD, PLU, Department, ctn, count ctn, pallet, Scanned',
+          mode: FileMode.append);
+      f.writeAsStringSync('\n', mode: FileMode.append);
+      MyDatabase m = MyDatabase.instance;
+      List<Box> list = await m.getListBoxAllBox1();
+      for (var b in list) {
+        f.writeAsStringSync(
+            '${b.no},${b.itemCD},${b.year},${b.serialNo},${b.color},${b.size},${b.patlength},${b.assortCD},${b.plu},${b.shipment},${b.ctn},${b.countCTN},${b.pallet},${b.flagNew}',
+            mode: FileMode.append);
+        f.writeAsStringSync('\n', mode: FileMode.append);
+      }
+    } catch (e) {
+      // homeCOntroller.scanController.text = '${e.toString()}eror';
+    }
+  } else {
+    // homeCOntroller.scanController.text = '${dir}errr';
+  }
+}
+
 Future<void> createCsvQR() async {
   String dir = await getDirPath();
   if (dir != null) {
@@ -235,13 +343,34 @@ Future<void> createCsvQR() async {
       await Permission.storage.request();
     }
     var format = DateFormat('yyyymmddhhmmss');
-    File f = File("$dir/QR${format.format(DateTime.now())}.csv");
+    File f = File("$dir/Arrival_QR${format.format(DateTime.now())}.csv");
     f.writeAsStringSync('scan, QR', mode: FileMode.append);
     f.writeAsStringSync('\n', mode: FileMode.append);
     MyDatabase m = MyDatabase.instance;
     List<Scan> list = await m.getListScan();
     for (var b in list) {
       f.writeAsStringSync('${b.scan},${b.barcode}', mode: FileMode.append);
+      f.writeAsStringSync('\n', mode: FileMode.append);
+    }
+  }
+}
+
+Future<void> createCsvQR1() async {
+  String dir = await getDirPath();
+  if (dir != null) {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+    var format = DateFormat('yyyymmddhhmmss');
+    File f = File("$dir/TransferWH_QR${format.format(DateTime.now())}.csv");
+    f.writeAsStringSync('scan, QR, pallet, plu', mode: FileMode.append);
+    f.writeAsStringSync('\n', mode: FileMode.append);
+    MyDatabase m = MyDatabase.instance;
+    List<Scan> list = await m.getListScan1();
+    for (var b in list) {
+      f.writeAsStringSync('${b.scan},${b.barcode},${b.pallet},${b.plu}',
+          mode: FileMode.append);
       f.writeAsStringSync('\n', mode: FileMode.append);
     }
   }

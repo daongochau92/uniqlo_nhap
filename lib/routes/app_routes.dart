@@ -10,6 +10,7 @@ abstract class Routes {
   static const SCAN = _Paths.SCAN;
   static const LOADING = _Paths.LOADING;
   static const MENU = _Paths.MENU;
+  static const CHECKSTS = _Paths.CHECKSTS;
 }
 
 abstract class _Paths {
@@ -17,4 +18,5 @@ abstract class _Paths {
   static const SCAN = '/scan';
   static const LOADING = '/loading';
   static const MENU = '/menu';
+  static const CHECKSTS = '/checksts';
 }

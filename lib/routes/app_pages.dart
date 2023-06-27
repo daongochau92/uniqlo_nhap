@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/checksts/bindings/checksts_binding.dart';
+import '../modules/checksts/views/checksts_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/loading/bindings/loading_binding.dart';
@@ -37,6 +39,11 @@ class AppPages {
       name: _Paths.MENU,
       page: () => MenuView(),
       binding: MenuBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHECKSTS,
+      page: () => CheckstsView(),
+      binding: CheckstsBinding(),
     ),
   ];
 }

@@ -21,25 +21,62 @@ class MenuView extends GetView<MenuController> {
               const SizedBox(
                 height: 50,
               ),
-              TextButton(
-                onPressed: () => Get.toNamed(Routes.HOME),
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.blue.withOpacity(0.8),
-                ),
-                child: const Text(
-                  'Arrival',
-                  style: TextStyle(color: Colors.white),
+              SizedBox(
+                width: 100,
+                child: TextButton(
+                  onPressed: () => Get.toNamed(Routes.HOME),
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        const Color.fromARGB(255, 238, 57, 57).withOpacity(0.8),
+                  ),
+                  child: const Text(
+                    'Arrival',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
-              TextButton(
+              SizedBox(
+                width: 100,
+                child: TextButton(
                   onPressed: () => Get.toNamed(Routes.LOADING),
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.blue.withOpacity(0.8),
+                    backgroundColor: const Color.fromARGB(255, 243, 222, 33)
+                        .withOpacity(0.8),
                   ),
                   child: const Text(
                     'Loading',
                     style: TextStyle(color: Colors.white),
-                  ))
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                child: TextButton(
+                  onPressed: () => Get.toNamed(Routes.CHECKSTS),
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        const Color.fromARGB(255, 82, 243, 33).withOpacity(0.8),
+                  ),
+                  child: const Text(
+                    'Check STS',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                child: TextButton(
+                  onPressed: () => Get.toNamed(Routes.SCAN),
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 33, 243, 103)
+                        .withOpacity(0.8),
+                  ),
+                  child: const Text(
+                    'TransferWH',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

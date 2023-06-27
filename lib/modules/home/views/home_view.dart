@@ -26,14 +26,14 @@ class HomeView extends GetView<HomeController> {
                   "${controller.count.value} / ${controller.total.value}",
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 40,
+                    fontSize: 55,
                   ),
                   maxLines: 1,
                 ),
               )),
         ),
         centerTitle: true,
-        leadingWidth: 1000,
+        // leadingWidth: 1000,
         actions: [
           PopupMenuButton(
             // add icon, by default "3 dot" icon
@@ -66,7 +66,7 @@ class HomeView extends GetView<HomeController> {
                   // ignore: avoid_print
                   print('ko get duoc file');
                 }
-                int size = await readFileExcel(uint8list);
+                int size = await readFileExcelArrival(uint8list);
                 if (size == 0) {
                 } else {
                   controller.count.value = 0;

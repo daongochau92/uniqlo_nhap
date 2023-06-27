@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:uniqlo_nhap/database/database.dart';
-import 'package:uniqlo_nhap/model/save.dart';
-import 'package:uniqlo_nhap/model/scan.dart';
+import 'package:uniqlo_nhap/model/sts.dart';
 
-class HomeController extends GetxController {
+import '../../../database/database.dart';
+import '../../../model/save.dart';
+
+class CheckstsController extends GetxController {
   RxInt total = 0.obs;
   RxInt count = 0.obs;
-  RxInt ctn = 0.obs;
-  RxInt tctn = 0.obs;
+  RxInt totalStore = 0.obs;
+  RxInt countStore = 0.obs;
   RxInt fontSize = 95.obs;
-  RxString solasort = "".obs;
+  RxString arrivalDate = "".obs;
   RxString oldnew = "".obs;
-  RxString no = "".obs;
+  RxString store = "".obs;
   TextEditingController scanController = TextEditingController();
   TextEditingController sizeController = TextEditingController();
   MyDatabase m;
@@ -24,15 +25,17 @@ class HomeController extends GetxController {
   Future<void> onReady() async {
     m = MyDatabase.instance;
 
-    Future<List<Scan>> l1 = m.getListScan();
-    l1.then((value) => count.value = value.length);
+    Future<List<Sts>> tt = m.getListStsAll();
+    // tt.then((value) => total.value = value.length);
+    tt.then((value) {
+      total.value = value.length;
+      getList();
+    });
 
-    getList();
-
-    Save s1 = await m.getSave(1);
+    Save s1 = await m.getSave(2);
 
     if (s1 == null) {
-      Save s = Save(id: 1, fontSize: 95);
+      Save s = Save(id: 2, fontSize: 95);
       m.insertSave(s);
       fontSize.value = 95;
     } else {
@@ -43,18 +46,20 @@ class HomeController extends GetxController {
     super.onReady();
   }
 
-  void getTotal() {}
-
   void getList() async {
-    Future<int> tt = m.getTotalCTN();
-    tt.then((value) => total.value = value);
-
     m = MyDatabase.instance;
-    list.value = await m.getListBoxAllBoxNotScann();
+    list.value = await m.getListCheckStsNotScann();
+
+    count.value = total.value - list.length;
   }
 
   @override
   void onInit() {
     super.onInit();
+  }
+
+  Future<Sts> getSts(String ref) async {
+    m = MyDatabase.instance;
+    return await m.getCheckSts(ref);
   }
 }

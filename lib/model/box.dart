@@ -15,6 +15,7 @@ class Box {
   int ctn;
   int countCTN;
   String flagNew;
+  String pallet;
 
   Box(
       {this.no,
@@ -29,7 +30,8 @@ class Box {
       this.shipment,
       this.ctn,
       this.countCTN,
-      this.flagNew});
+      this.flagNew,
+      this.pallet});
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = <String, dynamic>{
@@ -47,6 +49,7 @@ class Box {
       colctn: ctn,
       colcountCTN: countCTN,
       colflagNew: flagNew,
+      colpallet: pallet,
     };
     return map;
   }
@@ -66,5 +69,6 @@ class Box {
     ctn = map[colctn];
     countCTN = map[colcountCTN];
     flagNew = map[colflagNew];
+    pallet = map[colpallet];
   }
 }
